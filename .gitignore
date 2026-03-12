@@ -5,3 +5,12 @@ __pycache__/
 *.mp3
 *.m4a
 
+.gradio/
+api_dl_*/
+uploads/
+*.log
+*.deb
+outputs/
+tmp_*/
+__pycache__/
+*.pyc

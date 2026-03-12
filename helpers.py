@@ -387,19 +387,33 @@ def get_sentences_speaker_mapping(word_speaker_mapping, spk_ts):
 
 def get_speaker_aware_transcript(sentences_speaker_mapping, f):
     previous_speaker = sentences_speaker_mapping[0]["speaker"]
-    f.write(f"{previous_speaker}: ")
+    st = sentences_speaker_mapping[0].get("start_time", 0)
+    ts = _ms_to_timestamp(st)
+    f.write(f"[{ts}] {previous_speaker}: ")
 
     for sentence_dict in sentences_speaker_mapping:
         speaker = sentence_dict["speaker"]
         sentence = sentence_dict["text"]
+        st = sentence_dict.get("start_time", 0)
+        et = sentence_dict.get("end_time", 0)
+        ts_start = _ms_to_timestamp(st)
+        ts_end = _ms_to_timestamp(et)
 
         # If this speaker doesn't match the previous one, start a new paragraph
         if speaker != previous_speaker:
-            f.write(f"\n\n{speaker}: ")
+            f.write(f"\n\n[{ts_start}] {speaker}: ")
             previous_speaker = speaker
 
         # No matter what, write the current sentence
         f.write(sentence + " ")
+
+
+def _ms_to_timestamp(ms):
+    """Convert milliseconds to MM:SS format."""
+    total_seconds = int(ms / 1000)
+    minutes = total_seconds // 60
+    seconds = total_seconds % 60
+    return f"{minutes:02d}:{seconds:02d}"
 
 
 def format_timestamp(
