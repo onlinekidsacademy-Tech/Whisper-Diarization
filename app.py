@@ -491,6 +491,18 @@ if __name__ == "__main__":
 
     fastapi_app = FastAPI()
 
+    def api_transcribe_sync(filepath, lang, diar, wmodel):
+        # Consume the generator fully
+        for update in run_pipeline(filepath, lang, True, diar, False, wmodel):
+            if isinstance(update, tuple):
+                txt, srt_file, txt_file = update
+                return {
+                    "transcript": txt,
+                    "srt_file": os.path.basename(srt_file), 
+                    "txt_file": os.path.basename(txt_file)
+                }
+        raise Exception("Pipeline did not return final transcription tuple")
+
     @fastapi_app.post("/api/transcribe")
     async def handle_transcribe(request: Request):
         try:
@@ -533,4 +545,4 @@ if __name__ == "__main__":
     # Mount Gradio inside the FastAPI app
     fastapi_app = gr.mount_gradio_app(fastapi_app, demo, path="/")
 
-    uvicorn.run(fastapi_app, host="0.0.0.0", port=7860)
+    uvicorn.run(fastapi_app, host="0.0.0.0", port=8888)
